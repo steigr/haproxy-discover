@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-$(dirname $0)/start $@
+. $(dirname $0)/functions.sh
+haproxy_discover_vars
+haproxy_discover_attach $@

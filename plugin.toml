@@ -10,5 +10,6 @@ website_url = "http://git.kiwigrid.com/infrastructure/plugn/discover"
 backend_naming_script = "Script to build backend from container id."
 haproxy_config_path   = "Path to haproxy config directory"
 reload_script         = "Reload Script of HAProxy"
+trace                 = "Script Debugging"
 
 [plugin.compatibility]
