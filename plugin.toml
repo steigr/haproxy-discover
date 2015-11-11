@@ -7,8 +7,8 @@ maintainer_email = "mathias.kaufmann@kiwigrid.com"
 website_url = "http://git.kiwigrid.com/infrastructure/plugn/discover"
 
 [plugin.config]
-backend_naming_script = "backend-naming"
-haproxy_config_path   = "/etc/haproxy"
-reload_script         = "/etc/init.d/haproxy"
+backend_naming_script = "Script to build backend from container id."
+haproxy_config_path   = "Path to haproxy config directory"
+reload_script         = "Reload Script of HAProxy"
 
 [plugin.compatibility]

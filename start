@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+[[ "$TRACE" ]] && set -x
+set -eo pipefail
+
+load() {
+	. $(dirname $0)/functions.sh
+}
+
+vars() {
+	export CONFIG_HAPROXY_CONFIG_PATH="${CONFIG_HAPROXY_CONFIG_PATH:-/etc/haproxy}"
+	export HAPROXY_CONFIG_PATH="${HAPROXY_CONFIG_PATH:-$CONFIG_HAPROXY_CONFIG_PATH}"
+}
+
+main() {
+	local container_id="$1"
+}
+
+load
+vars
+main $@
+exit $?
