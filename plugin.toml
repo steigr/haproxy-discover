@@ -1,0 +1,14 @@
+[plugin]
+name = "haproxy-discover"
+description = "HAProxy Backend Discovery"
+version = "0.1.0"
+maintainer_name = "Mathias Kaufmann"
+maintainer_email = "mathias.kaufmann@kiwigrid.com"
+website_url = "http://git.kiwigrid.com/infrastructure/plugn/discover"
+
+[plugin.config]
+backend_naming_script = "backend-naming"
+haproxy_config_path   = "/etc/haproxy"
+reload_script         = "/etc/init.d/haproxy"
+
+[plugin.compatibility]
