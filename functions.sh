@@ -12,6 +12,21 @@ haproxy_discover_vars() {
 	export HAPROXY_RELOAD_AFTER_DETACH="${HAPROXY_RELOAD_AFTER_DETACH:-false}"
 }
 
+haproxy_discover_inspect() {
+  local id="$1"
+  local property="$2"
+  local args="--unix-socket /var/run/docker.sock http:/containers/$id/json"
+  case "$DOCKER_HOST" in
+    unix://*)
+      args="--unix-socket ${DOCKER_HOST#unix://*} http:/containers/$id/json"
+    ;;
+    tcp://*)
+      args="http://${DOCKER_HOST#tcp://*}/containers/$id/json"
+    ;;
+  esac
+  curl -sL $args | jq -r "$property"
+}
+
 haproxy_discover_backend_of() {
 	local id="$1"
 	local naming_script="${CONFIG_BACKEND_NAMING_SCRIPT:-$(command -v backend-naming)}"
@@ -20,16 +35,13 @@ haproxy_discover_backend_of() {
 
 haproxy_discover_address_of() {
 	local id="$1"
-	docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$id"
+	haproxy_discover_inspect "$id" ".NetworkSettings.IPAddress"
 }
 
 haproxy_discover_port_of() {
 	local id="$1"
-	docker inspect --format '{{ json .Config.ExposedPorts }}' "$id" \
-	| jq 'with_entries( select ( .key | endswith("/tcp"))) | to_entries | .[].key' \
-	| xargs \
-	| cut -f1 -d/ \
-	| head -1
+	haproxy_discover_inspect "$id" ".Config.ExposedPorts" \
+	| jq -r 'to_entries | .[0].key' | cut -f1 -d/
 }
 
 haproxy_discover_marker_of() {
@@ -68,12 +80,14 @@ haproxy_discover_remove_backend() {
 }
 
 haproxy_discover_backend_of() {
-	local id="$1"
-	if [[ -x "$(command -v "$BACKEND_NAMING_SCRIPT")" ]]; then
-		"$(command -v "$BACKEND_NAMING_SCRIPT")" "$id" || exit 1
-	else
-		docker inspect --format 'be_{{ .Config.Hostname }}{{ .Config.Domainname }}' "$id"
-	fi
+  local id="$1"
+  if [[ -x "$(command -v "$BACKEND_NAMING_SCRIPT")" ]]; then
+    "$(command -v "$BACKEND_NAMING_SCRIPT")" "$id" || exit 1
+  else
+    local backend="bk_"
+    local backend="$backend$(haproxy_discover_inspect "$id" ".Config.Hostname")"
+    printf "$backend$(haproxy_discover_inspect "$id" ".Config.Domainname")"
+  fi
 }
 
 haproxy_discover_reload() {
