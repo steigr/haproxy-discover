@@ -40,8 +40,8 @@ haproxy_discover_address_of() {
 
 haproxy_discover_port_of() {
 	local id="$1"
-	haproxy_discover_inspect "$id" ".Config.ExposedPorts" \
-	| jq -r 'to_entries | .[0].key' | cut -f1 -d/
+	haproxy_discover_inspect "$id" ".Config.ExposedPortss" \
+	| jq -r 'to_entries | .[0].key' 2>/dev/null | cut -f1 -d/ || exit 1
 }
 
 haproxy_discover_marker_of() {
@@ -68,6 +68,7 @@ haproxy_discover_add_backend() {
 	local id="$2"
 	local address="$(haproxy_discover_address_of "$id")"
 	local port="$(haproxy_discover_port_of "$id")"
+	[[ "$port" ]] || exit 1
 	local marker="$(haproxy_discover_marker_of "$id")"
 	echo "server $id $address:${port:-$BACKEND_DEFAULT_PORT} check $marker" \
 	| tee -a "$file"
