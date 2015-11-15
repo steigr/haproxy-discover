@@ -70,7 +70,7 @@ haproxy_discover_add_backend() {
 	local port="$(haproxy_discover_port_of "$id")"
 	[[ "$port" ]] || exit 1
 	local marker="$(haproxy_discover_marker_of "$id")"
-	echo "server $id $address:${port:-$BACKEND_DEFAULT_PORT} check $marker" \
+	echo "server ${id}:${port} $address:${port:-$BACKEND_DEFAULT_PORT} check $marker" \
 	| tee -a "$file"
 }
 
